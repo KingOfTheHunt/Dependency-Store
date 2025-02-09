@@ -1,5 +1,6 @@
-using Dapper;
 using DependencyStore.Entities;
+using DependencyStore.Repositories;
+using DependencyStore.Repositories.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
@@ -7,16 +8,26 @@ namespace DependencyStore.Controllers;
 
 public class OrderController : ControllerBase
 {
+    private readonly SqlConnection _connection;
+    private readonly ICustomerRepository _customerRepository;
+    private readonly IProductRepository _productRepository;
+    private readonly IPromoCodeRepository _promoCodeRepository;
+
+    public OrderController()
+    {
+        _connection = new SqlConnection("ConnectionString");
+        _customerRepository = new CustomerRepository(_connection);
+        _productRepository = new ProductRepository(_connection);
+        _promoCodeRepository = new PromoCodeRepository(_connection);
+    }
+    
     [HttpPost]
     [Route("v1/order")]
-    public async Task<IActionResult> Place(string customerId, string zipCode, string promoCode, int[] products)
+    public async Task<IActionResult> Place(int customerId, string zipCode, string promoCode, int[] products)
     {
         // 1 - Recupera o cliente
-        Customer? customer = null;
-
-        await using var connection = new SqlConnection("ConnectionString");
-        const string query = "SELECT [Id], [Name], [Email] FROM Customer WHERE [Id]=@id";
-        customer = await connection.QuerySingleOrDefaultAsync<Customer>(query, new {id = customerId});
+        var customer = await _customerRepository.GetByIdAsync(customerId);
+        
         
         // 2 - Calcula o frete
         var deliveryFee = 0m;
@@ -30,19 +41,17 @@ public class OrderController : ControllerBase
         
         // 3 - Calcula o total dos produtos
         var subtotal = 0m;
-        const string getProductQuery = "SELECT [Id], [Name], [Price] FROM Product WHERE [Id]=@id";
         for (int i = 0; i < products.Length; i++)
         {
-            Product product = await connection.QueryFirstAsync(getProductQuery, new { id = products[i] });
+            var product = await _productRepository.GetByIdAsync(products[i]);
             subtotal += product.Price;
         }
         
         // 4 - Aplica o desconto
         var discount = 0m;
-        const string getPromoQuery = "SELECT [Code], [Value], [ExpireDate] FROM Promo_Codes WHERE [Code]=@code"; 
-        var promo = await connection.QueryFirstAsync<PromoCode>(getPromoQuery, new { code = promoCode });
+        var promo = await _promoCodeRepository.GetByCodeAsync(promoCode);
 
-        if (promo.ExpireDate > DateTime.Now)
+        if (promo!.ExpireDate > DateTime.Now)
             discount = promo.Value;
         
         // 5 - Gera o pedido
