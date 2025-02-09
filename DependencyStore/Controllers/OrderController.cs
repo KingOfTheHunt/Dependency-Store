@@ -13,12 +13,13 @@ public class OrderController : ControllerBase
     private readonly IProductRepository _productRepository;
     private readonly IPromoCodeRepository _promoCodeRepository;
 
-    public OrderController()
+    public OrderController(ICustomerRepository customerRepository, IProductRepository productRepository, 
+        IPromoCodeRepository promoCodeRepository)
     {
         _connection = new SqlConnection("ConnectionString");
-        _customerRepository = new CustomerRepository(_connection);
-        _productRepository = new ProductRepository(_connection);
-        _promoCodeRepository = new PromoCodeRepository(_connection);
+        _customerRepository = customerRepository;
+        _productRepository = productRepository;
+        _promoCodeRepository = promoCodeRepository;
     }
     
     [HttpPost]
@@ -27,7 +28,9 @@ public class OrderController : ControllerBase
     {
         // 1 - Recupera o cliente
         var customer = await _customerRepository.GetByIdAsync(customerId);
-        
+
+        if (customer is null)
+            return NotFound("Customer not found");
         
         // 2 - Calcula o frete
         var deliveryFee = 0m;
