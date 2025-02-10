@@ -37,37 +37,22 @@ public class OrderController : ControllerBase
         
         // 2 - Calcula o frete
         var deliveryFee = await _deliveryFeeService.CalculateAsync(zipCode);
-        
-        // 3 - Calcula o total dos produtos
-        var subtotal = 0m;
-        for (int i = 0; i < products.Length; i++)
+        var coupon = await _promoCodeRepository.GetByCodeAsync(promoCode);
+        var discount = coupon?.Value ?? 0m;
+        List<Product> productsList = [];
+
+        foreach (var productId in products)
         {
-            var product = await _productRepository.GetByIdAsync(products[i]);
-            subtotal += product.Price;
+            var product = await _productRepository.GetByIdAsync(productId);
+            if (product is not null)
+                productsList.Add(product);
         }
         
-        // 4 - Aplica o desconto
-        var discount = 0m;
-        var promo = await _promoCodeRepository.GetByCodeAsync(promoCode);
-
-        if (promo!.ExpireDate > DateTime.Now)
-            discount = promo.Value;
-        
-        // 5 - Gera o pedido
-        var order = new Order();
-        order.Code = Guid.NewGuid().ToString().ToUpper()[..8];
-        order.Date = DateTime.Now;
-        order.DeliveryFee = deliveryFee;
-        order.Discount = discount;
-        order.Products = products;
-        order.SubTotal = subtotal;
-        
-        // 7 - Calcula o total
-        order.Total = subtotal - discount;
+        var order = new Order(deliveryFee, discount, productsList);
 
         return Ok(new
         {
-            message = $"Pedido {order.Code} gerado com sucesso!"
+            message = $"Pedido {order.Code} criado com sucesso!",
         });
     }
 }
