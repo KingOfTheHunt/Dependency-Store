@@ -9,7 +9,6 @@ namespace DependencyStore.Controllers;
 
 public class OrderController : ControllerBase
 {
-    private readonly SqlConnection _connection;
     private readonly ICustomerRepository _customerRepository;
     private readonly IProductRepository _productRepository;
     private readonly IPromoCodeRepository _promoCodeRepository;
@@ -18,7 +17,6 @@ public class OrderController : ControllerBase
     public OrderController(ICustomerRepository customerRepository, IProductRepository productRepository, 
         IPromoCodeRepository promoCodeRepository, IDeliveryFeeService deliveryFeeService)
     {
-        _connection = new SqlConnection("ConnectionString");
         _customerRepository = customerRepository;
         _productRepository = productRepository;
         _promoCodeRepository = promoCodeRepository;
