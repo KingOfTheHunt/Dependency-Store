@@ -1,6 +1,7 @@
 using DependencyStore.Entities;
 using DependencyStore.Repositories;
 using DependencyStore.Repositories.Contracts;
+using DependencyStore.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
@@ -12,14 +13,16 @@ public class OrderController : ControllerBase
     private readonly ICustomerRepository _customerRepository;
     private readonly IProductRepository _productRepository;
     private readonly IPromoCodeRepository _promoCodeRepository;
+    private readonly IDeliveryFeeService _deliveryFeeService;
 
     public OrderController(ICustomerRepository customerRepository, IProductRepository productRepository, 
-        IPromoCodeRepository promoCodeRepository)
+        IPromoCodeRepository promoCodeRepository, IDeliveryFeeService deliveryFeeService)
     {
         _connection = new SqlConnection("ConnectionString");
         _customerRepository = customerRepository;
         _productRepository = productRepository;
         _promoCodeRepository = promoCodeRepository;
+        _deliveryFeeService = deliveryFeeService;
     }
     
     [HttpPost]
@@ -33,14 +36,7 @@ public class OrderController : ControllerBase
             return NotFound("Customer not found");
         
         // 2 - Calcula o frete
-        var deliveryFee = 0m;
-        HttpClient httpClient = new HttpClient();
-        httpClient.BaseAddress = new Uri("http://consultafrete.io");
-        var request = await httpClient.PostAsync($"{httpClient.BaseAddress}/v1/deliveryFee", new StringContent(zipCode));
-        deliveryFee = await request.Content.ReadFromJsonAsync<decimal>();
-        
-        if (deliveryFee < 5)
-            deliveryFee = 5;
+        var deliveryFee = await _deliveryFeeService.CalculateAsync(zipCode);
         
         // 3 - Calcula o total dos produtos
         var subtotal = 0m;
