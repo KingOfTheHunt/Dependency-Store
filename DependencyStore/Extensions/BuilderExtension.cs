@@ -10,7 +10,7 @@ public static class BuilderExtension
 {
     public static void AddRepositories(this WebApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<SqlConnection>(x => new SqlConnection("ConnectionString"));
+        builder.Services.AddScoped<SqlConnection>(x => new SqlConnection("ConnectionString"));
         builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
         builder.Services.AddTransient<IProductRepository, ProductRepository>();
         builder.Services.AddTransient<IPromoCodeRepository, PromoCodeRepository>();
