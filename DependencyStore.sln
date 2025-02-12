@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyStore", "DependencyStore\DependencyStore.csproj", "{72CC6EC0-CFB7-4F6B-A91D-E1A895DC1260}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyStore.Lifetime", "DependencyStore.Lifetime\DependencyStore.Lifetime.csproj", "{9423203C-AF22-4543-A0D7-98A07C7204EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{72CC6EC0-CFB7-4F6B-A91D-E1A895DC1260}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72CC6EC0-CFB7-4F6B-A91D-E1A895DC1260}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72CC6EC0-CFB7-4F6B-A91D-E1A895DC1260}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9423203C-AF22-4543-A0D7-98A07C7204EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9423203C-AF22-4543-A0D7-98A07C7204EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9423203C-AF22-4543-A0D7-98A07C7204EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9423203C-AF22-4543-A0D7-98A07C7204EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
